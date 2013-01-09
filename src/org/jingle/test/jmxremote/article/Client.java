@@ -16,12 +16,7 @@ public class Client {
 
   public void run() {
     try {
-      HashMap<String, String> map =
-                  new HashMap<String, String>();
-      map.put("java.naming.factory.initial",
-          RegistryContextFactory.class.getName());
-      JMXConnector connector = JMXConnectorFactory
-          .connect(new JMXServiceURL(serviceURL));
+      JMXConnector connector = JMXConnectorFactory.connect(new JMXServiceURL(serviceURL));
       conn = connector.getMBeanServerConnection();
       doOper();
       synchronized (this) {

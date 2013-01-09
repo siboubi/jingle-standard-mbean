@@ -14,6 +14,8 @@ import org.jingle.test.jmxremote.client.MBeanServerImpl;
  *
  */
 public class StandardClient extends Client {
+	
+	@Override
 	protected void doOper() {
 	    try {
 	      MBeanServer server =

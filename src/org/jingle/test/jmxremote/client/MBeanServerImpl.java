@@ -29,42 +29,34 @@ import javax.management.OperationsException;
 import javax.management.QueryExp;
 import javax.management.ReflectionException;
 import javax.management.loading.ClassLoaderRepository;
-import javax.management.remote.JMXConnector;
-import javax.management.remote.JMXConnectorFactory;
-import javax.management.remote.JMXServiceURL;
 
 /**
  * @author siboubib
  *
  */
 public class MBeanServerImpl implements MBeanServer, NotificationListener {
-	   // Constants ------------------------------------------------------
-
-	   /**
-	    * No parameters array
-	    */
-	   private static final Object[] NOPARAMS = new Object[0];
-
-	   /**
-	    * No signature array
-	    */
-	   private static final String[] NOSIG = new String[0];
-
 	   // Attributes ----------------------------------------------------
+	   private MBeanServer server;
 
 	/**
 	 * 
 	 */
 	public MBeanServerImpl(MBeanServerConnection connection) {
-		// TODO Auto-generated constructor stub
+		this.server = (MBeanServer)connection;
 	}
 
 	/* (non-Javadoc)
 	 * @see javax.management.NotificationListener#handleNotification(javax.management.Notification, java.lang.Object)
 	 */
 	@Override
-	public void handleNotification(Notification notification, Object handback) {
+	public void handleNotification(Notification event, Object handback) {
 		// TODO Auto-generated method stub
+		System.out.println("handleNotification, event: "+event+", count="+server.getMBeanCount());
+	      synchronized( this )
+	      {
+	         if( this.getMBeanCount() == server.getMBeanCount() )
+	            notifyAll();
+	      }
 
 	}
 
@@ -94,8 +86,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 	public void addNotificationListener(ObjectName name, NotificationListener listener,
 			NotificationFilter filter, Object handback)
 			throws InstanceNotFoundException {
-		MBenEntry entry = registry.get(name);
-
+			server.addNotificationListener(name, listener, filter, handback);
 	}
 
 	/* (non-Javadoc)
@@ -127,8 +118,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 	public void addNotificationListener(ObjectName name, ObjectName listener,
 			NotificationFilter filter, Object handback)
 			throws InstanceNotFoundException {
-		// TODO Auto-generated method stub
-
+			server.addNotificationListener(name, listener, filter, handback);
 	}
 
 	/* (non-Javadoc)
@@ -139,8 +129,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 			throws ReflectionException, InstanceAlreadyExistsException,
 			MBeanRegistrationException, MBeanException,
 			NotCompliantMBeanException {
-		// TODO Auto-generated method stub
-		return null;
+			return server.createMBean(className, name);
 	}
 
 	/* (non-Javadoc)
@@ -152,8 +141,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 			InstanceAlreadyExistsException, MBeanRegistrationException,
 			MBeanException, NotCompliantMBeanException,
 			InstanceNotFoundException {
-		// TODO Auto-generated method stub
-		return null;
+			return server.createMBean(className, name, loaderName);
 	}
 
 	/* (non-Javadoc)
@@ -164,8 +152,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 			Object[] params, String[] signature) throws ReflectionException,
 			InstanceAlreadyExistsException, MBeanRegistrationException,
 			MBeanException, NotCompliantMBeanException {
-		// TODO Auto-generated method stub
-		return null;
+			return server.createMBean(className, name, params, signature);
 	}
 
 	/* (non-Javadoc)
@@ -177,8 +164,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 			throws ReflectionException, InstanceAlreadyExistsException,
 			MBeanRegistrationException, MBeanException,
 			NotCompliantMBeanException, InstanceNotFoundException {
-		// TODO Auto-generated method stub
-		return null;
+			return server.createMBean(className, name, loaderName, params, signature);
 	}
 
 	/* (non-Javadoc)
@@ -188,8 +174,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 	@Deprecated
 	public ObjectInputStream deserialize(ObjectName name, byte[] data)
 			throws InstanceNotFoundException, OperationsException {
-		// TODO Auto-generated method stub
-		return null;
+		return server.deserialize(name, data);
 	}
 
 	/* (non-Javadoc)
@@ -199,8 +184,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 	@Deprecated
 	public ObjectInputStream deserialize(String className, byte[] data)
 			throws OperationsException, ReflectionException {
-		// TODO Auto-generated method stub
-		return null;
+		return server.deserialize(className, data);
 	}
 
 	/* (non-Javadoc)
@@ -211,8 +195,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 	public ObjectInputStream deserialize(String className, ObjectName loaderName,
 			byte[] data) throws InstanceNotFoundException, OperationsException,
 			ReflectionException {
-		// TODO Auto-generated method stub
-		return null;
+		return server.deserialize(className, loaderName, data);
 	}
 
 	/* (non-Javadoc)
@@ -222,8 +205,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 	public Object getAttribute(ObjectName name, String attribute)
 			throws MBeanException, AttributeNotFoundException,
 			InstanceNotFoundException, ReflectionException {
-		// TODO Auto-generated method stub
-		return null;
+			return server.getAttribute(name, attribute);
 	}
 
 	/* (non-Javadoc)
@@ -232,8 +214,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 	@Override
 	public AttributeList getAttributes(ObjectName name, String[] attributes)
 			throws InstanceNotFoundException, ReflectionException {
-		// TODO Auto-generated method stub
-		return null;
+			return server.getAttributes(name, attributes);
 	}
 
 	/* (non-Javadoc)
@@ -242,8 +223,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 	@Override
 	public ClassLoader getClassLoader(ObjectName name)
 			throws InstanceNotFoundException {
-		// TODO Auto-generated method stub
-		return null;
+		return server.getClassLoader(name);
 	}
 
 	/* (non-Javadoc)
@@ -252,8 +232,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 	@Override
 	public ClassLoader getClassLoaderFor(ObjectName name)
 			throws InstanceNotFoundException {
-		// TODO Auto-generated method stub
-		return null;
+		return server.getClassLoaderFor(name);
 	}
 
 	/* (non-Javadoc)
@@ -261,8 +240,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 	 */
 	@Override
 	public ClassLoaderRepository getClassLoaderRepository() {
-		// TODO Auto-generated method stub
-		return null;
+		return server.getClassLoaderRepository();
 	}
 
 	/* (non-Javadoc)
@@ -270,8 +248,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 	 */
 	@Override
 	public String getDefaultDomain() {
-		// TODO Auto-generated method stub
-		return null;
+			return server.getDefaultDomain();
 	}
 
 	/* (non-Javadoc)
@@ -279,8 +256,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 	 */
 	@Override
 	public String[] getDomains() {
-		// TODO Auto-generated method stub
-		return null;
+			return server.getDomains();
 	}
 
 	/* (non-Javadoc)
@@ -288,8 +264,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 	 */
 	@Override
 	public Integer getMBeanCount() {
-		// TODO Auto-generated method stub
-		return null;
+			return server.getMBeanCount();
 	}
 
 	/* (non-Javadoc)
@@ -299,8 +274,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 	public MBeanInfo getMBeanInfo(ObjectName name)
 			throws InstanceNotFoundException, IntrospectionException,
 			ReflectionException {
-		// TODO Auto-generated method stub
-		return null;
+			return server.getMBeanInfo(name);
 	}
 
 	/* (non-Javadoc)
@@ -309,8 +283,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 	@Override
 	public ObjectInstance getObjectInstance(ObjectName name)
 			throws InstanceNotFoundException {
-		// TODO Auto-generated method stub
-		return null;
+			return server.getObjectInstance(name);
 	}
 
 	/* (non-Javadoc)
@@ -319,12 +292,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 	@Override
 	public Object instantiate(String className) throws ReflectionException,
 			MBeanException {
-		try {
-			return instantiate(className, (ObjectName)null, NOPARAMS, NOSIG);
-		} catch (InstanceNotFoundException e) {
-			e.printStackTrace();
-		}
-		return null;
+			return server.instantiate(className);
 	}
 
 	/* (non-Javadoc)
@@ -334,8 +302,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 	public Object instantiate(String className, ObjectName loaderName)
 			throws ReflectionException, MBeanException,
 			InstanceNotFoundException {
-		// TODO Auto-generated method stub
-		return instantiate(className, (ObjectName)null, NOPARAMS, NOSIG);
+		return server.instantiate(className, loaderName);
 	}
 
 	/* (non-Javadoc)
@@ -344,12 +311,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 	@Override
 	public Object instantiate(String className, Object[] params, String[] signature)
 			throws ReflectionException, MBeanException {
-		try {
-			return instantiate(className, (ObjectName)null, params, signature);
-		} catch (InstanceNotFoundException e) {
-			e.printStackTrace();
-		}
-		return null;
+			return server.instantiate(className, params, signature);
 	}
 
 	/* (non-Javadoc)
@@ -359,8 +321,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 	public Object instantiate(String className, ObjectName loaderName, Object[] params,
 			String[] signature) throws ReflectionException, MBeanException,
 			InstanceNotFoundException {
-		// TODO Auto-generated method stub
-		return null;
+		return server.instantiate(className, loaderName, params, signature);
 	}
 
 	/* (non-Javadoc)
@@ -370,8 +331,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 	public Object invoke(ObjectName name, String operationName, Object[] params,
 			String[] signature) throws InstanceNotFoundException, MBeanException,
 			ReflectionException {
-		// TODO Auto-generated method stub
-		return null;
+		return server.invoke(name, operationName, params, signature);
 	}
 
 	/* (non-Javadoc)
@@ -380,8 +340,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 	@Override
 	public boolean isInstanceOf(ObjectName name, String className)
 			throws InstanceNotFoundException {
-		// TODO Auto-generated method stub
-		return false;
+		return server.isInstanceOf(name, className);
 	}
 
 	/* (non-Javadoc)
@@ -389,26 +348,23 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 	 */
 	@Override
 	public boolean isRegistered(ObjectName name) {
-		// TODO Auto-generated method stub
-		return false;
+		return server.isRegistered(name);
 	}
 
 	/* (non-Javadoc)
 	 * @see javax.management.MBeanServer#queryMBeans(javax.management.ObjectName, javax.management.QueryExp)
 	 */
 	@Override
-	public Set<ObjectInstance> queryMBeans(ObjectName arg0, QueryExp arg1) {
-		// TODO Auto-generated method stub
-		return null;
+	public Set<ObjectInstance> queryMBeans(ObjectName name, QueryExp query) {
+		return server.queryMBeans(name, query);
 	}
 
 	/* (non-Javadoc)
 	 * @see javax.management.MBeanServer#queryNames(javax.management.ObjectName, javax.management.QueryExp)
 	 */
 	@Override
-	public Set<ObjectName> queryNames(ObjectName arg0, QueryExp arg1) {
-		// TODO Auto-generated method stub
-		return null;
+	public Set<ObjectName> queryNames(ObjectName name, QueryExp query) {
+		return server.queryNames(name, query);
 	}
 
 	/* (non-Javadoc)
@@ -418,8 +374,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 	public ObjectInstance registerMBean(Object inst, ObjectName name)
 			throws InstanceAlreadyExistsException, MBeanRegistrationException,
 			NotCompliantMBeanException {
-		// TODO Auto-generated method stub
-		return null;
+		return server.registerMBean(inst, name);
 	}
 
 	/* (non-Javadoc)
@@ -433,8 +388,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 	@Override
 	public void removeNotificationListener(ObjectName name, ObjectName listener)
 			throws InstanceNotFoundException, ListenerNotFoundException {
-		// TODO Auto-generated method stub
-
+		server.removeNotificationListener(name, listener);
 	}
 
 	/* (non-Javadoc)
@@ -449,8 +403,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 	public void removeNotificationListener(ObjectName name,
 			NotificationListener listener) throws InstanceNotFoundException,
 			ListenerNotFoundException {
-		// TODO Auto-generated method stub
-
+		server.removeNotificationListener(name, listener);
 	}
 
 	/* (non-Javadoc)
@@ -466,8 +419,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 	public void removeNotificationListener(ObjectName name, ObjectName listener,
 			NotificationFilter filter, Object handback)
 			throws InstanceNotFoundException, ListenerNotFoundException {
-		// TODO Auto-generated method stub
-
+		server.removeNotificationListener(name, listener, filter, handback);
 	}
 
 	/* (non-Javadoc)
@@ -483,8 +435,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 	public void removeNotificationListener(ObjectName name,
 			NotificationListener listener, NotificationFilter filter, Object handback)
 			throws InstanceNotFoundException, ListenerNotFoundException {
-		// TODO Auto-generated method stub
-
+		server.removeNotificationListener(name, listener, filter, handback);
 	}
 
 	/* (non-Javadoc)
@@ -494,8 +445,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 	public void setAttribute(ObjectName name, Attribute attribute)
 			throws InstanceNotFoundException, AttributeNotFoundException,
 			InvalidAttributeValueException, MBeanException, ReflectionException {
-		// TODO Auto-generated method stub
-
+		server.setAttribute(name, attribute);
 	}
 
 	/* (non-Javadoc)
@@ -504,8 +454,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 	@Override
 	public AttributeList setAttributes(ObjectName name, AttributeList attributes)
 			throws InstanceNotFoundException, ReflectionException {
-		// TODO Auto-generated method stub
-		return null;
+		return server.setAttributes(name, attributes);
 	}
 
 	/* (non-Javadoc)
@@ -514,8 +463,7 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 	@Override
 	public void unregisterMBean(ObjectName name)
 			throws InstanceNotFoundException, MBeanRegistrationException {
-		// TODO Auto-generated method stub
-
+		server.unregisterMBean(name);
 	}
 
 }

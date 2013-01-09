@@ -9,15 +9,15 @@ import com.sun.jdmk.comm.*;
 import com.sun.jndi.rmi.registry.*;
 
 public class Server {
-  protected MBeanServer server = null;
+  protected MBeanServer mbeanServer = null;
   String serviceURL = "service:jmx:rmi:" +
   "//localhost/jndi/rmi://localhost:1099/test";
   public void run() {
     try {
-    // create MBean server
+    // create an MBean server
     	System.out.println(
     		      "create MBean server");
-      server = MBeanServerFactory.
+      mbeanServer = MBeanServerFactory.
                  createMBeanServer("test");
       
       
@@ -25,30 +25,37 @@ public class Server {
       // create JMXConnectorServer MBean
       System.out.println(
     	      "create JMXConnectorServer MBean");
-      HashMap<String, String> map =
+      // Specify environment parameters for the behavior of the connector serve
+      // in order to listen for RMI-based connections from remote clients
+      HashMap<String, String> environment =
            new HashMap<String, String>();
-      map.put (
+      environment.put (
     		  "java.naming.factory.initial",
     		  RegistryContextFactory.class.getName()
       );
-      map.put (
+      environment.put (
     		  RMIConnectorServer.JNDI_REBIND_ATTRIBUTE, 
     		  "true"
       );
-      
+      // A connector server is attached to an MBean server. 
+      // It listens for client connection requests and creates a connection for each one.
+      // A connector server is associated with an MBean server either by registering it in that MBean server, or by passing the MBean server to its constructor.
+      // In this case, our connector server <<connector>> is associated with an MBean server by passing the MBean server <<mbeanServer>> to its constructor.
       JMXConnectorServer connector =
         JMXConnectorServerFactory
         .newJMXConnectorServer (
             new JMXServiceURL(serviceURL),
-            map, 
-            server
+            environment, 
+            mbeanServer
         );
       // register the connector server as an MBean
       System.out.println("register the connector server as an MBean");
-      server.registerMBean(
+      mbeanServer.registerMBean(
     		  connector,
               new ObjectName("system:name=rmiconnector")
       );
+      // A connector server is inactive when created. 
+      // It only starts listening for client connections when the start method is called.
       // start the connector server
       System.out.println("start the connector server");
       connector.start();
@@ -60,10 +67,11 @@ public class Server {
       HtmlAdaptorServer adapter =
           new HtmlAdaptorServer();
       
-      ObjectName httpName =
-          new ObjectName("system:name=http");
       // register the adapter server as an MBean
-      server.registerMBean(adapter, httpName);
+      mbeanServer.registerMBean(
+    		  adapter, 
+    		  new ObjectName("system:name=http")
+      );
       // start the adaptor server
       adapter.setPort(9293);
       adapter.start();
