@@ -13,6 +13,8 @@ public class Client {
     "//localhost/jndi/rmi://localhost:1099/test";
 
   protected MBeanServerConnection conn = null;
+  final String SERVER_DELEGATE = "JMImplementation:type=MBeanServerDelegate";
+
 
   public void run() {
     try {
@@ -35,6 +37,17 @@ public class Client {
     } catch (IOException e) {
       e.printStackTrace();
     }
+    try {
+		ObjectName bean = new ObjectName(SERVER_DELEGATE);
+		MBeanInfo info = conn.getMBeanInfo(bean);
+		info.g
+	} catch (MalformedObjectNameException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (NullPointerException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
   }
 
   public static void main(String[] args) {

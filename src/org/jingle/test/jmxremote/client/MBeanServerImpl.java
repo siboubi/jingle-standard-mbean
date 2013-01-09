@@ -3,6 +3,7 @@
  */
 package org.jingle.test.jmxremote.client;
 
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.Set;
 
@@ -18,7 +19,9 @@ import javax.management.MBeanException;
 import javax.management.MBeanInfo;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
+import javax.management.MBeanServerBuilder;
 import javax.management.MBeanServerConnection;
+import javax.management.MBeanServerDelegate;
 import javax.management.NotCompliantMBeanException;
 import javax.management.Notification;
 import javax.management.NotificationFilter;
@@ -35,6 +38,8 @@ import javax.management.loading.ClassLoaderRepository;
  *
  */
 public class MBeanServerImpl implements MBeanServer, NotificationListener {
+	   final String SERVER_DELEGATE = "JMImplementation:type=MBeanServerDelegate";
+
 	   // Attributes ----------------------------------------------------
 	   private MBeanServer server;
 
@@ -42,6 +47,14 @@ public class MBeanServerImpl implements MBeanServer, NotificationListener {
 	 * 
 	 */
 	public MBeanServerImpl(MBeanServerConnection connection) {
+		MBeanServerBuilder mbeanServerBuilder = new MBeanServerBuilder();
+		MBeanServerDelegate delegate = null;
+		try {
+			this.server = mbeanServerBuilder.newMBeanServer(connection.getDefaultDomain(), (MBeanServer)null, delegate);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		this.server = (MBeanServer)connection;
 	}
 
